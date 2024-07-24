@@ -28,4 +28,18 @@ class NewRoomView(View):
             return render(request, 'new_room.html', {'message': message})
 
 
+class AllRoomsView(View):
+    def get(self, request):
+        if not Room.objects.all().exists():
+            message = 'No rooms available'
+            return render(request, 'home.html', {'message': message})
+        else:
+            rooms = Room.objects.all()
+            busy = False
+            ctx = {'rooms': rooms, 'busy': busy}
+            return render(request, 'all_room_list.html', ctx)
+
+    def post(self, request):
+        pass
+
 
