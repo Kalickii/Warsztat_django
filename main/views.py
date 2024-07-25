@@ -39,7 +39,36 @@ class AllRoomsView(View):
             ctx = {'rooms': rooms, 'busy': busy}
             return render(request, 'all_room_list.html', ctx)
 
-    def post(self, request):
-        pass
+
+class RoomDeleteView(View):
+    def get(self, request, room_id):
+        room = Room.objects.get(pk=room_id)
+        room.delete()
+        return redirect('http://127.0.0.1:8000/room/list/')
 
 
+class RoomModifyView(View):
+    def get(self, request, room_id):
+        room = Room.objects.get(pk=room_id)
+        hidden_id = room_id
+        ctx = {'room': room, 'hidden_id': hidden_id}
+        return render(request, 'modify_room.html', ctx)
+
+    def post(self, request, room_id):
+        room = Room.objects.get(pk=room_id)
+        name = request.POST.get('name')
+        capacity = int(request.POST.get('capacity'))
+        projector = int(request.POST.get('projector'))
+        if name and capacity > 0:
+            if not Room.objects.filter(name=name).exists() or name == room.name:
+                room.name = name
+                room.capacity = capacity
+                room.have_projector = projector
+                room.save()
+                return redirect('http://127.0.0.1:8000/room/list')
+            else:
+                message = 'Error: Room already exists'
+                return render(request, 'modify_room.html', {'message': message})
+        else:
+            message = 'Error: Empty field or negative room capacity'
+            return render(request, 'modify_room.html', {'message': message})
