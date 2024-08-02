@@ -101,23 +101,39 @@ class RoomModifyView(View):
 class RoomBookView(View):
     def get(self, request, book_room_id):
         room = Room.objects.get(pk=book_room_id)
-        return render(request, 'book_room.html', {"room": room})
+        bookings = Booking.objects.filter(room=room).order_by('date')
+        ordered_bookings = [(booking.date, booking.comment) for booking in bookings]
+        return render(request, 'book_room.html', {"room": room, 'bookings': ordered_bookings})
 
     def post(self, request, book_room_id):
         room = Room.objects.get(pk=book_room_id)
         book_date = request.POST.get('date')
         comment = request.POST.get('comment')
+        bookings = Booking.objects.filter(room=room).order_by('date')
+        ordered_bookings = [(booking.date, booking.comment) for booking in bookings]
 
         if Booking.objects.filter(room=room, date=book_date):
             message = "That room is already booked!"
-            ctx = {"room": room, "message": message}
+            ctx = {"room": room, "message": message, "bookings": ordered_bookings}
             return render(request, 'book_room.html', ctx)
         if book_date < str(date.today()):
             message = "That date is from the past!"
-            ctx = {"room": room, "message": message}
+            ctx = {"room": room, "message": message, "bookings": ordered_bookings}
             return render(request, 'book_room.html', ctx)
 
         Booking.objects.create(room=room, date=book_date, comment=comment)
         return redirect("http://127.0.0.1:8000/room/list")
 
-#cos  nie dzialaxd strona po kliknieciu Book sie ładuje caly czas i nicsie nie dzieje nie  zapisuje w bazie danych
+
+class RoomDetailsView(View):
+    def get(self, request, room_id):
+        room = Room.objects.get(pk=room_id)
+        bookings = Booking.objects.filter(room=room).order_by('date')
+        ordered_bookings = [(booking.date, booking.comment) for booking in bookings]
+
+        ctx = {
+            'room': room, 'projector': 'Yes' if room.have_projector else 'No', 'bookings': ordered_bookings
+               }
+
+        return render(request, 'detailed_room.html', ctx)
+

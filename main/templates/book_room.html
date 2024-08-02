@@ -24,5 +24,12 @@
         <br><br>
         <input type="submit" value="Book">
     </form>
+        <br><br><br>
+             <label>
+                <p>Reservations:</p>
+                    {% for date, comment in bookings %}
+                        <p>{{ date}}, Comment: {{ comment }}</p>
+                    {% endfor %}
+             </label>
 </body>
 </html>
