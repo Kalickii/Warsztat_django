@@ -1,12 +1,16 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
 from django.views import View
+from django.utils.timezone import localdate
 
-from main.models import Room
+from datetime import date
+
+from main.models import Room, Booking
+
 
 class HomePageView(View):
     def get(self, request):
         return render(request, 'home.html')
+
 
 class NewRoomView(View):
     def get(self, request):
@@ -35,8 +39,28 @@ class AllRoomsView(View):
             return render(request, 'home.html', {'message': message})
         else:
             rooms = Room.objects.all()
-            busy = False
-            ctx = {'rooms': rooms, 'busy': busy}
+            bookings = Booking.objects.all()
+            room_status = {}
+
+            for room in rooms:
+                room_busy = 'No'
+                for booking in bookings:
+                    if Booking.objects.filter(room=room, date=localdate()).exists():
+                        room_busy = 'Yes'
+                        break
+                room_status[room.id] = room_busy
+
+            rooms_with_status = []
+            for room in rooms:
+                rooms_with_status.append({
+                    'id': room.id,
+                    'name': room.name,
+                    'capacity': room.capacity,
+                    'have_projector': room.have_projector,
+                    'status': room_status[room.id]
+                })
+
+            ctx = {'rooms': rooms_with_status}
             return render(request, 'all_room_list.html', ctx)
 
 
@@ -72,3 +96,28 @@ class RoomModifyView(View):
         else:
             message = 'Error: Empty field or negative room capacity'
             return render(request, 'modify_room.html', {'message': message})
+
+
+class RoomBookView(View):
+    def get(self, request, book_room_id):
+        room = Room.objects.get(pk=book_room_id)
+        return render(request, 'book_room.html', {"room": room})
+
+    def post(self, request, book_room_id):
+        room = Room.objects.get(pk=book_room_id)
+        book_date = request.POST.get('date')
+        comment = request.POST.get('comment')
+
+        if Booking.objects.filter(room=room, date=book_date):
+            message = "That room is already booked!"
+            ctx = {"room": room, "message": message}
+            return render(request, 'book_room.html', ctx)
+        if book_date < str(date.today()):
+            message = "That date is from the past!"
+            ctx = {"room": room, "message": message}
+            return render(request, 'book_room.html', ctx)
+
+        Booking.objects.create(room=room, date=book_date, comment=comment)
+        return redirect("http://127.0.0.1:8000/room/list")
+
+#cos  nie dzialaxd strona po kliknieciu Book sie ładuje caly czas i nicsie nie dzieje nie  zapisuje w bazie danych

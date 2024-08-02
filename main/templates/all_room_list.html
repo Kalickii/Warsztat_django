@@ -12,8 +12,8 @@
             <br>Capacity: {{ room.capacity }}, Projector: {% if room.have_projector %}Yes{% else %}No{% endif %}<br>
             <a href="http://127.0.0.1:8000/room/modify/{{ room.id }}">Edit </a>
             <a href="http://127.0.0.1:8000/room/delete/{{ room.id }}">Delete </a>
-            <a href="http://127.0.0.1:8000/room/reserve/{{ room.id }}">Book </a>
-            {% if busy %}<p style="color: red">Busy</p>{% else %}<p></p>{% endif %}
+            <a href="http://127.0.0.1:8000/room/book/{{ room.id }}">Book </a>
+            <br>Available: {{ room.status }}
             <br><br>
         </li>
     {% endfor %}
