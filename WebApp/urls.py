@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 
 from main.views import (HomePageView, NewRoomView, AllRoomsView, RoomDeleteView, RoomModifyView, RoomBookView,
-                        RoomDetailsView)
+                        RoomDetailsView, SearchView)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', HomePageView.as_view()),
@@ -28,4 +28,5 @@ urlpatterns = [
     path('room/modify/<int:room_id>', RoomModifyView.as_view()),
     path('room/book/<int:book_room_id>', RoomBookView.as_view()),
     path('room/<int:room_id>', RoomDetailsView.as_view()),
+    path('search/', SearchView.as_view())
 ]

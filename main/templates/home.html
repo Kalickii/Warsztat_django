@@ -11,6 +11,29 @@
         <li><a href="http://127.0.0.1:8000/room/list/">List of all rooms</a></li>
         <li><a href="http://127.0.0.1:8000/room/new/">Add new room</a></li>
     </ul>
+    <br><br>
+    <strong>Search Available Room:</strong>
+             <br><br>
+    <form action="http://127.0.0.1:8000/search/" method="post">
+        {% csrf_token %}
+        <label>
+            Minimum Capacity:
+            <input type="number" name="search_capacity">
+        </label>
+             <br>
+        <label>
+            Projector:
+            <select name="search_projector">
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
+        </label>
+             <br>
+        <label>
+            <input type="submit" value="Search">
+        </label>
+    </form>
+            <br><br>
     <footer>
         <p>Author: Michał Kalicki</p>
     </footer>

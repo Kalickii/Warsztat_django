@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search</title>
+</head>
+<body>
+    <h1>Available Rooms:</h1>
+    {% if rooms %}
+        {% for room in rooms %}
+            <li>
+                <a href="http://127.0.0.1:8000/room/{{ room.id }}"> {{ room.name }} </a>:
+                <br>Capacity: {{ room.capacity }}, Projector: {% if room.have_projector %}Yes{% else %}No{% endif %}<br>
+                <a href="http://127.0.0.1:8000/room/modify/{{ room.id }}">Edit </a>
+                <a href="http://127.0.0.1:8000/room/delete/{{ room.id }}">Delete </a>
+                <a href="http://127.0.0.1:8000/room/book/{{ room.id }}">Book </a>
+                <br><br>
+            </li>
+        {% endfor %}
+    {% else %}
+        <p>No rooms  available for the given search criteria.</p>
+    {% endif %}
+        <form action="http://127.0.0.1:8000/" method="get">
+            <input type="submit" value="Back">
+        </form>
+</body>
+</html>

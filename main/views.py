@@ -39,19 +39,14 @@ class AllRoomsView(View):
             return render(request, 'home.html', {'message': message})
         else:
             rooms = Room.objects.all()
-            bookings = Booking.objects.all()
             room_status = {}
-
-            for room in rooms:
-                room_busy = 'No'
-                for booking in bookings:
-                    if Booking.objects.filter(room=room, date=localdate()).exists():
-                        room_busy = 'Yes'
-                        break
-                room_status[room.id] = room_busy
-
             rooms_with_status = []
+
             for room in rooms:
+                room_status[room.id] = 'No'
+                if Booking.objects.filter(room=room, date=localdate()).exists():
+                    room_status[room.id] = 'Yes'
+
                 rooms_with_status.append({
                     'id': room.id,
                     'name': room.name,
@@ -137,3 +132,26 @@ class RoomDetailsView(View):
 
         return render(request, 'detailed_room.html', ctx)
 
+
+class SearchView(View):
+    def post(self, request):
+        search_capacity = int(request.POST.get('search_capacity'))
+        search_projector = int(request.POST.get('search_projector'))
+        if search_capacity > 0:
+            matching_rooms = Room.objects.filter(capacity__gte=search_capacity, have_projector=search_projector)
+
+            room_status = {}
+            available_rooms = []
+
+            for room in matching_rooms:
+                room_status[room.id] = 'No'
+                if Booking.objects.filter(room=room, date=localdate()).exists():
+                    room_status[room.id] = 'Yes'
+
+                if room_status[room.id] == 'No':
+                    available_rooms.append(room)
+
+            return render(request, 'search.html', {'rooms': available_rooms})
+        else:
+            message = "Invalid search parameters"
+            return render(request, 'home.html', {'message': message})
